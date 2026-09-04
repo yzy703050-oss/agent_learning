@@ -1,18 +1,15 @@
-import os
-
 from langchain_deepseek import ChatDeepSeek
 
-from .config import load_env_file
+from app.core.config import settings
 
 
 def create_llm(streaming: bool = False):
-    load_env_file()
-
-    if not os.environ.get("DEEPSEEK_API_KEY"):
+    if settings.DEEPSEEK_API_KEY is None:
         raise RuntimeError("Please set the DEEPSEEK_API_KEY environment variable first.")
 
     return ChatDeepSeek(
-        model=os.environ.get("DEEPSEEK_MODEL", "deepseek-chat"),
-        temperature=0,
+        api_key=settings.DEEPSEEK_API_KEY.get_secret_value(),
+        model=settings.DEEPSEEK_MODEL,
+        temperature=settings.LLM_TEMPERATURE,
         streaming=streaming,
     )

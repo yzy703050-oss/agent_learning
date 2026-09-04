@@ -1,5 +1,4 @@
 import json
-import os
 
 import langsmith as ls
 from langchain.agents import create_agent
@@ -7,7 +6,8 @@ from langchain.tools import tool
 from langchain_core.messages import HumanMessage
 from langchain_core.tracers.langchain import wait_for_all_tracers
 
-from .config import load_env_file
+from app.core.config import settings
+
 from .llm import create_llm
 from .memory import JobMatchMemory
 from .prompts import build_career_chat_system_message
@@ -110,9 +110,7 @@ def run_career_chat_agent(
     tracing: bool = False,
     trace_tokens: bool = False,
 ) -> dict:
-    load_env_file()
-
-    if tracing and not os.environ.get("LANGSMITH_API_KEY"):
+    if tracing and settings.LANGSMITH_API_KEY is None:
         raise RuntimeError("Please set the LANGSMITH_API_KEY environment variable first.")
 
     project_name = get_langsmith_project_name()

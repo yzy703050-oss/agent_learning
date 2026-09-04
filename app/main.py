@@ -3,14 +3,8 @@
 from fastapi import FastAPI
 
 from app.api.v1.api import api_router
+from app.core.config import settings
 
-
-API_DESCRIPTION = """
-这是一个基于 LangGraph 的岗位匹配 Agent 后端示例。
-
-它支持岗位分析、RAG、业务记忆，以及通过 interrupt/resume 完成人工审核。
-当前阶段使用进程内 MemorySaver 和 JobMatchMemory，适合学习与本地演示。
-"""
 
 OPENAPI_TAGS = [
     {"name": "系统状态", "description": "检查后端服务是否正常运行。"},
@@ -21,18 +15,18 @@ OPENAPI_TAGS = [
 ]
 
 app = FastAPI(
-    title="岗位匹配 Agent 后端 API",
-    description=API_DESCRIPTION,
-    version="0.2.0",
+    title=settings.PROJECT_NAME,
+    description=settings.DESCRIPTION,
+    version=settings.APP_VERSION,
     openapi_tags=OPENAPI_TAGS,
 )
-app.include_router(api_router, prefix="/api/v1")
+app.include_router(api_router, prefix=settings.API_V1_STR)
 
 
 @app.get("/", include_in_schema=False)
 def root() -> dict[str, str]:
     return {
-        "name": "Job Match Agent API",
+        "name": settings.PROJECT_NAME,
         "docs": "/docs",
-        "api_version": "v1",
+        "api_version": settings.API_V1_STR.rsplit("/", maxsplit=1)[-1],
     }

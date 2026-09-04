@@ -1,11 +1,12 @@
 import json
-import os
 from typing import TypedDict
 
 import langsmith as ls
 from langchain_core.tracers.langchain import wait_for_all_tracers
 from langgraph.graph import END, START, StateGraph
 from langgraph.types import Command, interrupt
+
+from app.core.config import settings
 
 from .chains import (
     build_job_match_variables,
@@ -15,7 +16,6 @@ from .chains import (
     parse_job_match_response,
     stream_job_match_agent,
 )
-from .config import load_env_file
 from .memory import JobMatchMemory
 from .models import (
     JobInfo,
@@ -321,9 +321,7 @@ def analyze_job_with_agent(
     tracing: bool = False,
     trace_tokens: bool = False,
 ) -> dict:
-    load_env_file()
-
-    if tracing and not os.environ.get("LANGSMITH_API_KEY"):
+    if tracing and settings.LANGSMITH_API_KEY is None:
         raise RuntimeError("Please set the LANGSMITH_API_KEY environment variable first.")
 
     project_name = get_langsmith_project_name()
@@ -414,9 +412,7 @@ def analyze_job_with_langgraph(
     tracing: bool = False,
     trace_tokens: bool = False,
 ) -> dict:
-    load_env_file()
-
-    if tracing and not os.environ.get("LANGSMITH_API_KEY"):
+    if tracing and settings.LANGSMITH_API_KEY is None:
         raise RuntimeError("Please set the LANGSMITH_API_KEY environment variable first.")
 
     project_name = get_langsmith_project_name()
@@ -510,9 +506,7 @@ def resume_job_match_after_human_review(
     memory: JobMatchMemory | None = None,
     tracing: bool = False,
 ) -> dict:
-    load_env_file()
-
-    if tracing and not os.environ.get("LANGSMITH_API_KEY"):
+    if tracing and settings.LANGSMITH_API_KEY is None:
         raise RuntimeError("Please set the LANGSMITH_API_KEY environment variable first.")
 
     project_name = get_langsmith_project_name()
