@@ -1,11 +1,8 @@
-import os
-
-from .config import load_env_file
+from app.core.config import settings
 
 
 def get_langsmith_project_name() -> str:
-    load_env_file()
-    return os.environ.get("LANGSMITH_PROJECT", "job-agent-demo")
+    return settings.LANGSMITH_PROJECT
 
 
 def build_trace_config(enable_tracing: bool, run_name: str) -> dict | None:
