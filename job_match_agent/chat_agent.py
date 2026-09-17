@@ -25,7 +25,7 @@ def create_job_match_workflow_tool(
     @tool
     def analyze_job_posting(
         job_description: str,
-        continue_high_risk_analysis: bool = True,
+        continue_on_hard_constraint_violation: bool = True,
     ) -> str:
         """Analyze a job posting with the Job Match LangGraph workflow."""
         result = analyze_job_with_langgraph(
@@ -40,12 +40,12 @@ def create_job_match_workflow_tool(
         )
 
         if result["interrupted"]:
-            if not continue_high_risk_analysis:
+            if not continue_on_hard_constraint_violation:
                 result = resume_job_match_after_human_review(
                     checkpointer=checkpointer,
                     thread_id=result["thread_id"],
                     approved=False,
-                    feedback="The chat agent chose not to continue high-risk analysis.",
+                    feedback="The chat agent chose not to continue after a hard constraint violation.",
                     memory=memory,
                     tracing=tracing,
                 )
@@ -54,7 +54,7 @@ def create_job_match_workflow_tool(
                     checkpointer=checkpointer,
                     thread_id=result["thread_id"],
                     approved=True,
-                    feedback="Continue, but make the visa risk clear.",
+                    feedback="Continue, but make the hard constraint gap clear.",
                     memory=memory,
                     tracing=tracing,
                 )
@@ -65,9 +65,12 @@ def create_job_match_workflow_tool(
                 "fit_score": result["match_result"].fit_score,
                 "matched_skills": result["match_result"].matched_skills,
                 "missing_skills": result["match_result"].missing_skills,
-                "authorization_risk": result["match_result"].authorization_risk,
                 "entry_level_fit": result["match_result"].entry_level_fit,
-                "visa_warning": result["visa_warning"],
+                "constraint_checks": [
+                    check.model_dump()
+                    for check in result["match_result"].constraint_checks
+                ],
+                "hard_constraint_warning": result["hard_constraint_warning"],
                 "final_answer": result["final_answer"],
                 "next_action": result["next_action"],
                 "next_action_reason": result["next_action_reason"],

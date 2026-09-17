@@ -21,17 +21,18 @@ router = APIRouter()
     response_model=CompletedJobResponse | PendingReviewResponse,
     summary="开始岗位匹配分析",
     description=(
-        "提交岗位 JD 和简历技能，启动 LangGraph 工作流。若岗位存在高签证风险，"
-        "接口会返回 pending_human_review，等待人工确认。"
+        "提交岗位 JD 和候选人资料，启动 LangGraph 工作流。若候选人明确不满足"
+        "岗位硬性条件，接口会返回 pending_human_review，等待人工确认。"
     ),
 )
 def analyze_job(request: AnalyzeJobRequest):
     try:
         return job_match_service.analyze(
             job_description=request.job_description,
+            candidate_profile=request.candidate_profile,
             resume_skills=request.resume_skills or None,
+            resume_text=request.resume_text,
             thread_id=request.thread_id,
-            visa_preference=request.visa_preference,
             target_role=request.target_role,
         )
     except ValueError as error:

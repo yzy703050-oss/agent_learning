@@ -13,7 +13,7 @@ from .prompts import (
     JOB_MATCH_SUMMARY_PROMPT,
     build_job_match_system_message,
 )
-from .tools import calculate_fit_score
+from .tools import calculate_weighted_match
 from .tracing import build_trace_config
 
 
@@ -70,7 +70,7 @@ def create_job_match_agent(streaming: bool = False):
 
     return create_agent(
         model=llm,
-        tools=[calculate_fit_score],
+        tools=[calculate_weighted_match],
         response_format=ToolStrategy(JobMatchResponse),
         system_prompt=build_job_match_system_message(),
     )

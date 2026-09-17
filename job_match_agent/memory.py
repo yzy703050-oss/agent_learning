@@ -13,7 +13,6 @@ class JobMatchMemory:
         self.analysis_history: list[dict[str, Any]] = []
         self.compressed_history: dict[str, Any] = {
             "older_jobs_count": 0,
-            "older_high_risk_count": 0,
             "best_fit_score": None,
             "best_fit_job_title": None,
             "missing_skill_counts": {},
@@ -22,14 +21,10 @@ class JobMatchMemory:
     def update_user_profile(
         self,
         resume_skills: list[str] | None = None,
-        visa_preference: str | None = None,
         target_role: str | None = None,
     ) -> None:
         if resume_skills:
             self.resume_skills = resume_skills
-
-        if visa_preference:
-            self.user_preferences["visa_preference"] = visa_preference
 
         if target_role:
             self.user_preferences["target_role"] = target_role
@@ -39,8 +34,8 @@ class JobMatchMemory:
             {
                 "job_title": job_info.job_title,
                 "fit_score": match_result.fit_score,
-                "authorization_risk": job_info.authorization_risk,
                 "entry_level_fit": job_info.entry_level_fit,
+                "hard_constraint_count": len(job_info.hard_constraints),
                 "missing_skills": match_result.missing_skills,
             }
         )
@@ -50,9 +45,6 @@ class JobMatchMemory:
         while len(self.analysis_history) > self.max_history:
             old_item = self.analysis_history.pop(0)
             self.compressed_history["older_jobs_count"] += 1
-
-            if old_item["authorization_risk"] == "high":
-                self.compressed_history["older_high_risk_count"] += 1
 
             best_score = self.compressed_history["best_fit_score"]
             if best_score is None or old_item["fit_score"] > best_score:
@@ -78,8 +70,7 @@ class JobMatchMemory:
         if self.compressed_history["older_jobs_count"]:
             lines.append(
                 "Compressed older analyses: "
-                f"{self.compressed_history['older_jobs_count']} older jobs, "
-                f"{self.compressed_history['older_high_risk_count']} high authorization risk."
+                f"{self.compressed_history['older_jobs_count']} older jobs."
             )
 
             if self.compressed_history["best_fit_job_title"]:
@@ -110,7 +101,7 @@ class JobMatchMemory:
                 lines.append(
                     "- "
                     f"{item['job_title']}: fit_score={item['fit_score']}, "
-                    f"authorization_risk={item['authorization_risk']}, "
+                    f"hard_constraints={item['hard_constraint_count']}, "
                     f"entry_level_fit={item['entry_level_fit']}"
                 )
 
@@ -118,4 +109,3 @@ class JobMatchMemory:
             return "No memory context yet."
 
         return "\n".join(lines)
-

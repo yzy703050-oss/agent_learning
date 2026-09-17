@@ -167,9 +167,9 @@ def build_job_context_query(job_info: JobInfo, resume_skills: list[str]) -> str:
         [
             job_info.job_title,
             job_info.experience_level,
-            job_info.authorization_risk,
             job_info.entry_level_fit,
             " ".join(job_info.required_skills),
+            " ".join(job_info.preferred_skills),
             " ".join(resume_skills),
         ]
     )
@@ -208,4 +208,3 @@ def create_job_context_retriever_chain():
             inputs["resume_skills"],
         )
     ).with_config({"run_name": "job-context-retriever"})
-

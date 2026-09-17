@@ -22,7 +22,8 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     DESCRIPTION: str = (
         "这是一个基于 LangGraph 的岗位匹配 Agent 后端示例。\n\n"
-        "它支持岗位分析、RAG、业务记忆，以及通过 interrupt/resume 完成人工审核。\n"
+        "它支持加权技能匹配、简历证据、通用硬性条件检查、RAG、业务记忆，"
+        "以及通过 interrupt/resume 完成人工审核。\n"
         "当前阶段使用进程内 MemorySaver 和 JobMatchMemory，适合学习与本地演示。"
     )
 

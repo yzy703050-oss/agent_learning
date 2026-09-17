@@ -29,7 +29,6 @@ def build_demo_memory() -> JobMatchMemory:
     memory = JobMatchMemory()
     memory.update_user_profile(
         resume_skills=resume_skills,
-        visa_preference="I need OPT, CPT, H-1B sponsorship, or visa-friendly roles.",
         target_role="Entry-level data analyst",
     )
     return memory
@@ -38,7 +37,7 @@ def build_demo_memory() -> JobMatchMemory:
 def run_chat_demo(jd: str, memory: JobMatchMemory, checkpointer) -> None:
     chat_result = run_career_chat_agent(
         user_message=(
-            "请帮我分析这个岗位是否适合我，并特别注意签证风险：\n"
+            "请帮我分析这个岗位是否适合我，并检查所有明确的硬性条件：\n"
             f"{jd}"
         ),
         memory=memory,
@@ -75,7 +74,7 @@ def run_inner_graph_demo(jd: str, memory: JobMatchMemory, checkpointer) -> None:
             checkpointer=checkpointer,
             thread_id=result["thread_id"],
             approved=True,
-            feedback="Continue, but make the visa risk clear.",
+            feedback="继续，但请明确说明硬性条件差距。",
             memory=memory,
             tracing=TRACE_OUTPUT,
         )
@@ -86,8 +85,8 @@ def run_inner_graph_demo(jd: str, memory: JobMatchMemory, checkpointer) -> None:
     print(result["memory_context"])
     print("\nRetrieved Context:")
     print(result["retrieved_context"])
-    print("\nVisa Warning:")
-    print(result["visa_warning"] or "No visa warning.")
+    print("\nHard Constraint Warning:")
+    print(result["hard_constraint_warning"] or "No hard constraint warning.")
     print("\nStructured Match Result:")
     print(result["match_result"].model_dump_json(indent=2))
     print("\nFinal Answer:")
@@ -110,7 +109,7 @@ def run_inner_graph_demo(jd: str, memory: JobMatchMemory, checkpointer) -> None:
 def main() -> None:
     jd = """
     We are looking for a Data Analyst with experience in Python, SQL, Tableau,
-    and A/B testing. 0-2 years of experience preferred. No sponsorship is available.
+    and A/B testing. At least 2 years of experience is required.
     """
 
     memory = build_demo_memory()
